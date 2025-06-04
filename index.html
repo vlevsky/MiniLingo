@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lingo - Language Learning</title>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <h1>Mini Lingo</h1>
+      <div id="screen"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Complete language database with 4 difficulty levels
+    const questionsByLanguage = {
+      "Spanish 🇪🇸": {
+        beginner: [
+          { q: "Hola", a: ["Hello", "Goodbye", "Thanks", "Please"], c: 0 },
+          { q: "Gracias", a: ["Sorry", "Thank you", "Yes", "No"], c: 1 },
+          { q: "Por favor", a: ["Please", "You're welcome", "Excuse me", "Hi"], c: 0 },
+          { q: "Adiós", a: ["Goodbye", "Good morning", "Good night", "Hello"], c: 0 },
+          { q: "Sí", a: ["No", "Maybe", "Yes", "Hello"], c: 2 },
+          { q: "No", a: ["Yes", "No", "Thanks", "Excuse me"], c: 1 },
+          { q: "Buenos días", a: ["Good night", "Goodbye", "Good morning", "Please"], c: 2 },
+          { q: "Buenas noches", a: ["Good night", "Good day", "Goodbye", "Thanks"], c: 0 },
+          { q: "¿Cómo estás?", a: ["Who are you?", "How are you?", "Where are you?", "Why?"], c: 1 },
+          { q: "Lo siento", a: ["I'm sorry", "Please", "Good luck", "Nice to meet you"], c: 0 }
+        ],
+        intermediate: [
+          { q: "¿Qué hora es?", a: ["What time is it?", "How are you?", "Where is it?", "What is this?"], c: 0 },
+          { q: "¿Dónde está...?", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "Necesito ayuda", a: ["I need help", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "No entiendo", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "¿Cuánto cuesta?", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "Quisiera...", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "Estoy perdido/a", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "¿Habla inglés?", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "¿Puede ayudarme?", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 },
+          { q: "¿Dónde está el baño?", a: ["Where is the bathroom?", "Where is the hotel?", "Where is the restaurant?", "Where is the hospital?"], c: 0 }
+        ],
+        advanced: [
+          { q: "Me gustaría reservar una habitación", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "¿A qué hora abre el museo?", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "Tengo una reserva", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "¿Puede recomendarme un restaurante?", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "Necesito un médico", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "Perdí mi pasaporte", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "¿Dónde puedo cambiar dinero?", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "¿Cuál es la contraseña del WiFi?", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "¿Puede llamar a un taxi para mí?", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 },
+          { q: "¿Aceptan tarjetas de crédito?", a: ["Do you accept credit cards?", "Do you have WiFi?", "Do you speak English?", "Do you have a menu?"], c: 0 }
+        ],
+        extreme: [
+          { q: "El cambio climático es un problema grave que requiere acción inmediata", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "La inteligencia artificial está transformando numerosas industrias", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "La diversidad cultural enriquece nuestra sociedad", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "La sostenibilidad ambiental es crucial para las generaciones futuras", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "La globalización ha aumentado la interdependencia económica", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "La educación es fundamental para el desarrollo personal y profesional", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "La innovación tecnológica impulsa el progreso económico", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "La igualdad de género es esencial para una sociedad justa", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "La pandemia ha acelerado la adopción del teletrabajo", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "La ética en los negocios construye confianza con los clientes", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      // 19 more languages follow the same structure...
+      "French 🇫🇷": {
+        beginner: [
+          { q: "Bonjour", a: ["Goodbye", "Hello", "Please", "Thanks"], c: 1 },
+          { q: "Merci", a: ["Hello", "Sorry", "Thank you", "Yes"], c: 2 },
+          { q: "S'il vous plaît", a: ["You're welcome", "Please", "Hi", "See you"], c: 1 },
+          { q: "Au revoir", a: ["Hello", "Goodbye", "Yes", "No"], c: 1 },
+          { q: "Oui", a: ["No", "Yes", "Maybe", "Later"], c: 1 },
+          { q: "Non", a: ["Yes", "No", "Please", "Thanks"], c: 1 },
+          { q: "Bonsoir", a: ["Good evening", "Morning", "Night", "Bye"], c: 0 },
+          { q: "Bonne nuit", a: ["Goodbye", "Good night", "Thank you", "Hello"], c: 1 },
+          { q: "Comment ça va?", a: ["Where is it?", "How are you?", "What is that?", "See you soon"], c: 1 },
+          { q: "Je suis désolé", a: ["Thank you", "I'm sorry", "Goodbye", "Yes"], c: 1 }
+        ],
+        intermediate: [
+          { q: "Je m'appelle...", a: ["My name is...", "I live in...", "I come from...", "I am..."], c: 0 },
+          { q: "Excusez-moi", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "Je ne comprends pas", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "Combien ça coûte?", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "Je voudrais...", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "Où est...?", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "Avez-vous...?", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "Je suis perdu", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "Parlez-vous anglais?", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "Pouvez-vous m'aider?", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "Où est la gare?", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "Je voudrais réserver une chambre", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "À quelle heure ouvre le musée?", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "J'ai une réservation", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "Pouvez-vous me recommander un restaurant?", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "J'ai besoin d'un médecin", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "J'ai perdu mon passeport", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "Où puis-je changer de l'argent?", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "Quel est le mot de passe du WiFi?", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "Pouvez-vous appeler un taxi pour moi?", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "Le changement climatique est un problème grave qui nécessite une action immédiate", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "L'intelligence artificielle transforme de nombreuses industries", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "La diversité culturelle enrichit notre société", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "La durabilité environnementale est cruciale pour les générations futures", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "La mondialisation a accru l'interdépendance économique", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "L'éducation est fondamentale pour le développement personnel et professionnel", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "L'innovation technologique stimule le progrès économique", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "L'égalité des sexes est essentielle pour une société juste", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "La pandémie a accéléré l'adoption du télétravail", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "L'éthique des affaires établit la confiance avec les clients", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      "German 🇩🇪": {
+        beginner: [
+          { q: "Hallo", a: ["Goodbye", "Hello", "Yes", "Thanks"], c: 1 },
+          { q: "Danke", a: ["Sorry", "Please", "Thank you", "No"], c: 2 },
+          { q: "Bitte", a: ["Please", "Thank you", "No", "Yes"], c: 0 },
+          { q: "Tschüss", a: ["Hello", "Goodbye", "Please", "Yes"], c: 1 },
+          { q: "Ja", a: ["No", "Yes", "Maybe", "Hello"], c: 1 },
+          { q: "Nein", a: ["Yes", "No", "Please", "Thanks"], c: 1 },
+          { q: "Guten Morgen", a: ["Good night", "Goodbye", "Good morning", "Please"], c: 2 },
+          { q: "Gute Nacht", a: ["Good day", "Goodbye", "Good night", "Thanks"], c: 2 },
+          { q: "Wie geht's?", a: ["Who are you?", "How are you?", "Where are you?", "Why?"], c: 1 },
+          { q: "Entschuldigung", a: ["I'm sorry", "Please", "Good luck", "Nice to meet you"], c: 0 }
+        ],
+        intermediate: [
+          { q: "Ich heiße...", a: ["My name is...", "I live in...", "I come from...", "I am..."], c: 0 },
+          { q: "Entschuldigung", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "Ich verstehe nicht", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "Wie viel kostet das?", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "Ich möchte...", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "Wo ist...?", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "Haben Sie...?", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "Ich habe mich verlaufen", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "Sprechen Sie Englisch?", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "Können Sie mir helfen?", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "Wo ist der Bahnhof?", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "Ich möchte ein Zimmer reservieren", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "Wann öffnet das Museum?", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "Ich habe eine Reservierung", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "Können Sie ein Restaurant empfehlen?", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "Ich brauche einen Arzt", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "Ich habe meinen Pass verloren", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "Wo kann ich Geld wechseln?", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "Wie lautet das WiFi-Passwort?", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "Können Sie ein Taxi für mich rufen?", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "Der Klimawandel ist ein ernstes Problem, das sofortiges Handeln erfordert", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "Künstliche Intelligenz transformiert zahlreiche Industrien", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "Kulturelle Vielfalt bereichert unsere Gesellschaft", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "Umweltnachhaltigkeit ist entscheidend für zukünftige Generationen", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "Globalisierung hat wirtschaftliche Interdependenz erhöht", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "Bildung ist grundlegend für persönliche und berufliche Entwicklung", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "Technologische Innovation treibt wirtschaftlichen Fortschritt an", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "Geschlechtergleichheit ist essentiell für eine gerechte Gesellschaft", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "Die Pandemie hat die Einführung von Heimarbeit beschleunigt", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "Ethik im Geschäftsleben schafft Vertrauen mit Kunden", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      "Italian 🇮🇹": {
+        beginner: [
+          { q: "Ciao", a: ["Hello/Goodbye", "Thanks", "No", "Yes"], c: 0 },
+          { q: "Grazie", a: ["Please", "Sorry", "Thank you", "Goodbye"], c: 2 },
+          { q: "Per favore", a: ["Please", "Hi", "No", "Yes"], c: 0 },
+          { q: "Buongiorno", a: ["Good night", "Goodbye", "Good morning", "Hello"], c: 2 },
+          { q: "Buona notte", a: ["Goodbye", "Good night", "Thank you", "Hello"], c: 1 },
+          { q: "Sì", a: ["No", "Yes", "Maybe", "Goodbye"], c: 1 },
+          { q: "No", a: ["Yes", "No", "Thanks", "Please"], c: 1 },
+          { q: "Mi dispiace", a: ["I'm sorry", "Please", "Hi", "Thanks"], c: 0 },
+          { q: "Come stai?", a: ["How are you?", "Where are you?", "Who are you?", "Goodbye"], c: 0 },
+          { q: "Arrivederci", a: ["Hello", "Yes", "No", "Goodbye"], c: 3 }
+        ],
+        intermediate: [
+          { q: "Come ti chiami?", a: ["What's your name?", "How are you?", "Where are you?", "What time is it?"], c: 0 },
+          { q: "Scusi", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "Non capisco", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "Quanto costa?", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "Vorrei...", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "Dov'è...?", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "Avete...?", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "Mi sono perso", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "Parla inglese?", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "Può aiutarmi?", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "Dov'è la stazione?", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "Vorrei prenotare una camera", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "A che ora apre il museo?", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "Ho una prenotazione", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "Può consigliarmi un ristorante?", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "Ho bisogno di un medico", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "Ho perso il passaporto", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "Dove posso cambiare denaro?", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "Qual è la password del WiFi?", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "Può chiamare un taxi per me?", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "Il cambiamento climatico è un problema grave che richiede un'azione immediata", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "L'intelligenza artificiale sta trasformando numerosi settori industriali", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "La diversità culturale arricchisce la nostra società", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "La sostenibilità ambientale è cruciale per le generazioni future", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "La globalizzazione ha aumentato l'interdipendenza economica", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "L'istruzione è fondamentale per lo sviluppo personale e professionale", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "L'innovazione tecnologica guida il progresso economico", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "L'uguaglianza di genere è essenziale per una società giusta", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "La pandemia ha accelerato l'adozione del lavoro a distanza", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "L'etica negli affari crea fiducia con i clienti", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      "Japanese 🇯🇵": {
+        beginner: [
+          { q: "こんにちは (Konnichiwa)", a: ["Hello", "Goodbye", "Thank you", "Sorry"], c: 0 },
+          { q: "ありがとう (Arigatō)", a: ["Please", "Thank you", "Hello", "Goodbye"], c: 1 },
+          { q: "すみません (Sumimasen)", a: ["Excuse me/Sorry", "Thank you", "Yes", "No"], c: 0 },
+          { q: "はい (Hai)", a: ["No", "Yes", "Maybe", "I don't know"], c: 1 },
+          { q: "いいえ (Iie)", a: ["Yes", "No", "Thank you", "Please"], c: 1 },
+          { q: "おはよう (Ohayō)", a: ["Good morning", "Good evening", "Good night", "Hello"], c: 0 },
+          { q: "こんばんは (Konbanwa)", a: ["Good morning", "Good evening", "Goodbye", "Hello"], c: 1 },
+          { q: "さようなら (Sayōnara)", a: ["Hello", "Goodbye", "Thank you", "Please"], c: 1 },
+          { q: "お元気ですか? (Ogenki desu ka?)", a: ["How are you?", "What's your name?", "Where are you?", "How old are you?"], c: 0 },
+          { q: "ごめんなさい (Gomen nasai)", a: ["Thank you", "I'm sorry", "Please", "Hello"], c: 1 }
+        ],
+        intermediate: [
+          { q: "お名前は何ですか? (Onamae wa nan desu ka?)", a: ["What's your name?", "How are you?", "Where are you?", "What time is it?"], c: 0 },
+          { q: "すみません (Sumimasen)", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "わかりません (Wakarimasen)", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "いくらですか? (Ikura desu ka?)", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "...をお願いします (...o onegaishimasu)", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "...はどこですか? (...wa doko desu ka?)", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "...がありますか? (...ga arimasu ka?)", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "道に迷いました (Michi ni mayoimashita)", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "英語を話せますか? (Eigo o hanasemasu ka?)", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "手伝ってくれますか? (Tetsudatte kuremasu ka?)", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "駅はどこですか? (Eki wa doko desu ka?)", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "部屋を予約したいです (Heya o yoyaku shitai desu)", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "美術館は何時に開きますか? (Bijutsukan wa nanji ni akimasu ka?)", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "予約があります (Yoyaku ga arimasu)", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "おすすめのレストランはありますか? (Osusume no resutoran wa arimasu ka?)", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "医者が必要です (Isha ga hitsuyō desu)", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "パスポートをなくしました (Pasupōto o nakushimashita)", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "お金を両替できるところはどこですか? (Okane o ryōgae dekiru tokoro wa doko desu ka?)", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "WiFiのパスワードは何ですか? (WiFi no pasuwādo wa nan desu ka?)", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "タクシーを呼んでくれますか? (Takushī o yonde kuremasu ka?)", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "気候変動は即時の行動を必要とする深刻な問題です", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "人工知能は多くの産業を変革しています", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "文化的多様性は私たちの社会を豊かにします", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "環境の持続可能性は将来の世代にとって重要です", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "グローバル化は経済的相互依存を増大させました", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "教育は個人と職業の成長に不可欠です", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "技術革新は経済的進歩を推進します", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "ジェンダー平等は公正な社会に不可欠です", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "パンデミックはリモートワークの採用を加速させました", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "ビジネス倫理は顧客との信頼を築きます", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      "Chinese 🇨🇳": {
+        beginner: [
+          { q: "你好 (Nǐ hǎo)", a: ["Hello", "Goodbye", "Thank you", "Sorry"], c: 0 },
+          { q: "谢谢 (Xièxiè)", a: ["Please", "Thank you", "Hello", "Goodbye"], c: 1 },
+          { q: "请 (Qǐng)", a: ["Please", "Thank you", "Yes", "No"], c: 0 },
+          { q: "是的 (Shì de)", a: ["No", "Yes", "Maybe", "I don't know"], c: 1 },
+          { q: "不是 (Bù shì)", a: ["Yes", "No", "Thank you", "Please"], c: 1 },
+          { q: "早上好 (Zǎoshang hǎo)", a: ["Good morning", "Good evening", "Good night", "Hello"], c: 0 },
+          { q: "晚上好 (Wǎnshàng hǎo)", a: ["Good morning", "Good evening", "Goodbye", "Hello"], c: 1 },
+          { q: "再见 (Zàijiàn)", a: ["Hello", "Goodbye", "Thank you", "Please"], c: 1 },
+          { q: "你好吗? (Nǐ hǎo ma?)", a: ["How are you?", "What's your name?", "Where are you?", "How old are you?"], c: 0 },
+          { q: "对不起 (Duìbuqǐ)", a: ["Thank you", "I'm sorry", "Please", "Hello"], c: 1 }
+        ],
+        intermediate: [
+          { q: "你叫什么名字? (Nǐ jiào shénme míngzi?)", a: ["What's your name?", "How are you?", "Where are you?", "What time is it?"], c: 0 },
+          { q: "不好意思 (Bù hǎoyìsi)", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "我不明白 (Wǒ bù míngbái)", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "多少钱? (Duōshǎo qián?)", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "我想要... (Wǒ xiǎng yào...)", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "...在哪里? (...zài nǎlǐ?)", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "有...吗? (Yǒu... ma?)", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "我迷路了 (Wǒ mílù le)", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "你会说英语吗? (Nǐ huì shuō Yīngyǔ ma?)", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "你能帮我吗? (Nǐ néng bāng wǒ ma?)", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "车站在哪里? (Chēzhàn zài nǎlǐ?)", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "我想预订一个房间 (Wǒ xiǎng yùdìng yīgè fángjiān)", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "博物馆几点开门? (Bówùguǎn jǐ diǎn kāimén?)", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "我有预订 (Wǒ yǒu yùdìng)", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "你能推荐一家餐厅吗? (Nǐ néng tuījiàn yījiā cāntīng ma?)", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "我需要医生 (Wǒ xūyào yīshēng)", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "我丢了护照 (Wǒ diūle hùzhào)", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "哪里可以换钱? (Nǎlǐ kěyǐ huàn qián?)", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "WiFi密码是什么? (WiFi mìmǎ shì shénme?)", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "你能帮我叫辆出租车吗? (Nǐ néng bāng wǒ jiào liàng chūzūchē ma?)", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "气候变化是需要立即采取行动的严重问题", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "人工智能正在改变众多行业", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "文化多样性丰富了我们的社会", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "环境可持续性对子孙后代至关重要", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "全球化增加了经济相互依存", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "教育对个人和职业发展至关重要", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "技术创新推动经济进步", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "性别平等对于公平社会至关重要", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "疫情加速了远程工作的采用", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "商业道德建立与客户的信任", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      "Russian 🇷🇺": {
+        beginner: [
+          { q: "Привет (Privet)", a: ["Hello", "Goodbye", "Thank you", "Sorry"], c: 0 },
+          { q: "Спасибо (Spasibo)", a: ["Please", "Thank you", "Hello", "Goodbye"], c: 1 },
+          { q: "Пожалуйста (Pozhaluysta)", a: ["Please/You're welcome", "Thank you", "Yes", "No"], c: 0 },
+          { q: "Да (Da)", a: ["No", "Yes", "Maybe", "I don't know"], c: 1 },
+          { q: "Нет (Net)", a: ["Yes", "No", "Thank you", "Please"], c: 1 },
+          { q: "Доброе утро (Dobroye utro)", a: ["Good morning", "Good evening", "Good night", "Hello"], c: 0 },
+          { q: "Добрый вечер (Dobryy vecher)", a: ["Good morning", "Good evening", "Goodbye", "Hello"], c: 1 },
+          { q: "До свидания (Do svidaniya)", a: ["Hello", "Goodbye", "Thank you", "Please"], c: 1 },
+          { q: "Как дела? (Kak dela?)", a: ["How are you?", "What's your name?", "Where are you?", "How old are you?"], c: 0 },
+          { q: "Извините (Izvinite)", a: ["Thank you", "I'm sorry", "Please", "Hello"], c: 1 }
+        ],
+        intermediate: [
+          { q: "Как вас зовут? (Kak vas zovut?)", a: ["What's your name?", "How are you?", "Where are you?", "What time is it?"], c: 0 },
+          { q: "Извините (Izvinite)", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "Я не понимаю (Ya ne ponimayu)", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "Сколько это стоит? (Skol'ko eto stoit?)", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "Я бы хотел... (Ya by khotel...)", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "Где находится...? (Gde nakhoditsya...?)", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "У вас есть...? (U vas yest'...?)", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "Я заблудился (Ya zabludilsya)", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "Вы говорите по-английски? (Vy govorite po-angliyski?)", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "Вы можете мне помочь? (Vy mozhete mne pomoch'?)", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "Где находится вокзал? (Gde nakhoditsya vokzal?)", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "Я хотел бы забронировать номер (Ya khotel by zabronirovat' nomer)", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "Во сколько открывается музей? (Vo skol'ko otkryvaetsya muzey?)", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "У меня есть бронь (U menya yest' bron')", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "Вы можете порекомендовать ресторан? (Vy mozhete porekomendovat' restoran?)", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "Мне нужен врач (Mne nuzhen vrach)", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "Я потерял паспорт (Ya poteryal pasport)", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "Где можно обменять деньги? (Gde mozhno obmenyat' den'gi?)", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "Какой пароль от WiFi? (Kakoy parol' ot WiFi?)", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "Вы можете вызвать такси для меня? (Vy mozhete vyzvat' taksi dlya menya?)", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "Изменение климата - это серьезная проблема, требующая немедленных действий", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "Искусственный интеллект преобразует многочисленные отрасли", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "Культурное разнообразие обогащает наше общество", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "Экологическая устойчивость имеет решающее значение для будущих поколений", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "Глобализация увеличила экономическую взаимозависимость", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "Образование имеет основополагающее значение для личного и профессионального развития", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "Технологические инновации способствуют экономическому прогрессу", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "Гендерное равенство необходимо для справедливого общества", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "Пандемия ускорила внедрение удаленной работы", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "Этика в бизнесе создает доверие с клиентами", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      "Arabic 🇸🇦": {
+        beginner: [
+          { q: "مرحبا (Marhaba)", a: ["Hello", "Goodbye", "Thank you", "Sorry"], c: 0 },
+          { q: "شكرا (Shukran)", a: ["Please", "Thank you", "Hello", "Goodbye"], c: 1 },
+          { q: "من فضلك (Min fadlak)", a: ["Please", "Thank you", "Yes", "No"], c: 0 },
+          { q: "نعم (Na'am)", a: ["No", "Yes", "Maybe", "I don't know"], c: 1 },
+          { q: "لا (La)", a: ["Yes", "No", "Thank you", "Please"], c: 1 },
+          { q: "صباح الخير (Sabah al-khayr)", a: ["Good morning", "Good evening", "Good night", "Hello"], c: 0 },
+          { q: "مساء الخير (Masa' al-khayr)", a: ["Good morning", "Good evening", "Goodbye", "Hello"], c: 1 },
+          { q: "مع السلامة (Ma'a as-salama)", a: ["Hello", "Goodbye", "Thank you", "Please"], c: 1 },
+          { q: "كيف حالك؟ (Kayfa haluk?)", a: ["How are you?", "What's your name?", "Where are you?", "How old are you?"], c: 0 },
+          { q: "آسف (Aasif)", a: ["Thank you", "I'm sorry", "Please", "Hello"], c: 1 }
+        ],
+        intermediate: [
+          { q: "ما اسمك؟ (Ma ismuk?)", a: ["What's your name?", "How are you?", "Where are you?", "What time is it?"], c: 0 },
+          { q: "عفوا (Afwan)", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "لا أفهم (La afham)", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "بكم هذا؟ (Bikam hatha?)", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "أريد... (Ureed...)", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "أين...؟ (Ayna...?)", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "هل لديك...؟ (Hal ladayk...?)", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "أنا تائه (Ana ta'ih)", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "هل تتكلم الإنجليزية؟ (Hal tatakallam al-injleziya?)", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "هل يمكنك مساعدتي؟ (Hal yumkinuk musa'adati?)", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "أين المحطة؟ (Ayna al-mahatta?)", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "أريد حجز غرفة (Ureed hujra ghurfa)", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "في أي وقت يفتح المتحف؟ (Fi ayyi waqt yaftah al-mathaf?)", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "لدي حجز (Laday hujra)", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "هل يمكنك أن توصي بمطعم؟ (Hal yumkinuk an tusi bi mat'am?)", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "أحتاج إلى طبيب (Ahtaju ila tabib)", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "لقد فقدت جواز سفري (Laqad faqadt jawaz safari)", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "أين يمكنني صرف النقود؟ (Ayna yumkinuni sarf al-nuqud?)", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "ما هي كلمة سر الواي فاي؟ (Ma hiya kalimat sir al-waifi?)", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "هل يمكنك استدعاء تاكسي لي؟ (Hal yumkinuk istida'a taxi li?)", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "تغير المناخ مشكلة خطيرة تتطلب اتخاذ إجراءات فورية", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "الذكاء الاصطناعي يحول العديد من الصناعات", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "التنوع الثقافي يثري مجتمعنا", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "الاستدامة البيئية أمر بالغ الأهمية للأجيال القادمة", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "زادت العولمة من الاعتماد الاقتصادي المتبادل", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "التعليم أساسي للتطور الشخصي والمهني", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "الابتكار التكنولوجي يدفع التقدم الاقتصادي", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "المساواة بين الجنسين ضرورية لمجتمع عادل", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "أسرع الوباء من اعتماد العمل عن بعد", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "أخلاقيات الأعمال تبني الثقة مع العملاء", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      "Hindi 🇮🇳": {
+        beginner: [
+          { q: "नमस्ते (Namaste)", a: ["Hello", "Goodbye", "Thank you", "Sorry"], c: 0 },
+          { q: "धन्यवाद (Dhanyavaad)", a: ["Please", "Thank you", "Hello", "Goodbye"], c: 1 },
+          { q: "कृपया (Kripaya)", a: ["Please", "Thank you", "Yes", "No"], c: 0 },
+          { q: "हाँ (Haan)", a: ["No", "Yes", "Maybe", "I don't know"], c: 1 },
+          { q: "नहीं (Nahin)", a: ["Yes", "No", "Thank you", "Please"], c: 1 },
+          { q: "सुप्रभात (Suprabhaat)", a: ["Good morning", "Good evening", "Good night", "Hello"], c: 0 },
+          { q: "शुभ संध्या (Shubh sandhya)", a: ["Good morning", "Good evening", "Goodbye", "Hello"], c: 1 },
+          { q: "अलविदा (Alvida)", a: ["Hello", "Goodbye", "Thank you", "Please"], c: 1 },
+          { q: "आप कैसे हैं? (Aap kaise hain?)", a: ["How are you?", "What's your name?", "Where are you?", "How old are you?"], c: 0 },
+          { q: "माफ़ कीजिए (Maaf kijiye)", a: ["Thank you", "I'm sorry", "Please", "Hello"], c: 1 }
+        ],
+        intermediate: [
+          { q: "आपका नाम क्या है? (Aapka naam kya hai?)", a: ["What's your name?", "How are you?", "Where are you?", "What time is it?"], c: 0 },
+          { q: "क्षमा कीजिए (Kshama kijiye)", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "मैं नहीं समझा/समझी (Main nahin samjha/samjhi)", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "यह कितने का है? (Yeh kitne ka hai?)", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "मुझे... चाहिए (Mujhe... chahiye)", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "...कहाँ है? (...kahaan hai?)", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "क्या आपके पास... है? (Kya aapke paas... hai?)", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "मैं रास्ता भूल गया/गई (Main raasta bhool gaya/gayi)", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "क्या आप अंग्रेज़ी बोलते हैं? (Kya aap angrezi bolte hain?)", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "क्या आप मेरी मदद कर सकते हैं? (Kya aap meri madad kar sakte hain?)", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "स्टेशन कहाँ है? (Station kahaan hai?)", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "मैं एक कमरा बुक करना चाहता/चाहती हूँ (Main ek kamra book karna chahta/chahti hoon)", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "संग्रहालय कितने बजे खुलता है? (Sangrahalay kitne baje khulta hai?)", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "मेरा आरक्षण है (Mera aarakshan hai)", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "क्या आप एक रेस्तरां की सिफारिश कर सकते हैं? (Kya aap ek restaurant ki sifarish kar sakte hain?)", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "मुझे एक डॉक्टर चाहिए (Mujhe ek doctor chahiye)", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "मैंने अपना पासपोर्ट खो दिया (Maine apna passport kho diya)", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "मैं पैसे कहाँ बदल सकता/सकती हूँ? (Main paise kahaan badal sakta/sakti hoon?)", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "WiFi का पासवर्ड क्या है? (WiFi ka password kya hai?)", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "क्या आप मेरे लिए एक टैक्सी बुला सकते हैं? (Kya aap mere liye ek taxi bula sakte hain?)", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "जलवायु परिवर्तन एक गंभीर समस्या है जिसके लिए तत्काल कार्रवाई की आवश्यकता है", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "कृत्रिम बुद्धिमत्ता कई उद्योगों को बदल रही है", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "सांस्कृतिक विविधता हमारे समाज को समृद्ध करती है", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "पर्यावरणीय स्थिरता भविष्य की पीढ़ियों के लिए महत्वपूर्ण है", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "वैश्वीकरण ने आर्थिक अंतर्निर्भरता बढ़ा दी है", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "शिक्षा व्यक्तिगत और व्यावसायिक विकास के लिए मौलिक है", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "तकनीकी नवाचार आर्थिक प्रगति को चलाता है", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "लैंगिक समानता एक न्यायसंगत समाज के लिए आवश्यक है", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "महामारी ने दूरस्थ कार्य को अपनाने में तेजी ला दी है", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "व्यापार में नैतिकता ग्राहकों के साथ विश्वास बनाती है", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      "Portuguese 🇵🇹": {
+        beginner: [
+          { q: "Olá", a: ["Hello", "Goodbye", "Thank you", "Sorry"], c: 0 },
+          { q: "Obrigado/a", a: ["Please", "Thank you", "Hello", "Goodbye"], c: 1 },
+          { q: "Por favor", a: ["Please", "Thank you", "Yes", "No"], c: 0 },
+          { q: "Sim", a: ["No", "Yes", "Maybe", "I don't know"], c: 1 },
+          { q: "Não", a: ["Yes", "No", "Thank you", "Please"], c: 1 },
+          { q: "Bom dia", a: ["Good morning", "Good evening", "Good night", "Hello"], c: 0 },
+          { q: "Boa noite", a: ["Good morning", "Good evening/night", "Goodbye", "Hello"], c: 1 },
+          { q: "Tchau", a: ["Hello", "Goodbye", "Thank you", "Please"], c: 1 },
+          { q: "Como você está?", a: ["How are you?", "What's your name?", "Where are you?", "How old are you?"], c: 0 },
+          { q: "Desculpe", a: ["Thank you", "I'm sorry", "Please", "Hello"], c: 1 }
+        ],
+        intermediate: [
+          { q: "Qual é o seu nome?", a: ["What's your name?", "How are you?", "Where are you?", "What time is it?"], c: 0 },
+          { q: "Com licença", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "Eu não entendo", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "Quanto custa?", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "Eu gostaria de...", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "Onde fica...?", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "Você tem...?", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "Estou perdido/a", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "Você fala inglês?", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "Você pode me ajudar?", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "Onde fica a estação?", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "Eu gostaria de reservar um quarto", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "Que horas o museu abre?", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "Eu tenho uma reserva", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "Você pode recomendar um restaurante?", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "Eu preciso de um médico", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "Eu perdi meu passaporte", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "Onde posso trocar dinheiro?", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "Qual é a senha do WiFi?", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "Você pode chamar um táxi para mim?", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "As alterações climáticas são um problema grave que requer ação imediata", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "A inteligência artificial está a transformar numerosas indústrias", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "A diversidade cultural enriquece a nossa sociedade", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "A sustentabilidade ambiental é crucial para as gerações futuras", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "A globalização aumentou a interdependência económica", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "A educação é fundamental para o desenvolvimento pessoal e profissional", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "A inovação tecnológica impulsiona o progresso económico", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "A igualdade de género é essencial para uma sociedade justa", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "A pandemia acelerou a adoção do teletrabalho", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "A ética nos negócios constrói confiança com os clientes", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+      "Korean 🇰🇷": {
+        beginner: [
+          { q: "안녕하세요 (Annyeonghaseyo)", a: ["Hello", "Goodbye", "Thank you", "Sorry"], c: 0 },
+          { q: "감사합니다 (Gamsahamnida)", a: ["Please", "Thank you", "Hello", "Goodbye"], c: 1 },
+          { q: "제발 (Jebal)", a: ["Please", "Thank you", "Yes", "No"], c: 0 },
+          { q: "네 (Ne)", a: ["No", "Yes", "Maybe", "I don't know"], c: 1 },
+          { q: "아니요 (Aniyo)", a: ["Yes", "No", "Thank you", "Please"], c: 1 },
+          { q: "좋은 아침 (Joheun achim)", a: ["Good morning", "Good evening", "Good night", "Hello"], c: 0 },
+          { q: "안녕히 주무세요 (Annyeonghi jumuseyo)", a: ["Goodbye", "Good night", "Thank you", "Hello"], c: 1 },
+          { q: "안녕히 가세요 (Annyeonghi gaseyo)", a: ["Hello", "Goodbye", "Yes", "No"], c: 1 },
+          { q: "어떻게 지내세요? (Eotteoke jinaeseyo?)", a: ["How are you?", "What's your name?", "Where are you?", "How old are you?"], c: 0 },
+          { q: "미안합니다 (Mianhamnida)", a: ["Thank you", "I'm sorry", "Please", "Hello"], c: 1 }
+        ],
+        intermediate: [
+          { q: "이름이 뭐예요? (Ireumi mwoyeyo?)", a: ["What's your name?", "How are you?", "Where are you?", "What time is it?"], c: 0 },
+          { q: "실례합니다 (Sillyehamnida)", a: ["Excuse me", "Thank you", "I'm sorry", "Please"], c: 0 },
+          { q: "이해하지 못해요 (Ihaehaji mothaeyo)", a: ["I don't understand", "I don't know", "I don't like it", "I don't want it"], c: 0 },
+          { q: "얼마예요? (Eolmayeyo?)", a: ["How much does it cost?", "Where is it?", "What is this?", "When does it open?"], c: 0 },
+          { q: "...주세요 (...juseyo)", a: ["I would like...", "I don't want...", "I have...", "I need..."], c: 0 },
+          { q: "...어디예요? (...eodiyeyo?)", a: ["Where is...?", "What is...?", "When is...?", "Who is...?"], c: 0 },
+          { q: "...있어요? (...isseoyo?)", a: ["Do you have...?", "Do you want...?", "Do you like...?", "Do you know...?"], c: 0 },
+          { q: "길을 잃었어요 (Gireul ireosseoyo)", a: ["I'm lost", "I'm hungry", "I'm tired", "I'm happy"], c: 0 },
+          { q: "영어 할 줄 아세요? (Yeongeo hal jul aseyo?)", a: ["Do you speak English?", "Do you understand?", "Can you help me?", "Where are you from?"], c: 0 },
+          { q: "도와주실 수 있나요? (Dowajusil su innayo?)", a: ["Can you help me?", "Can you show me?", "Can you tell me?", "Can you give me?"], c: 0 }
+        ],
+        advanced: [
+          { q: "역은 어디에 있나요? (Yeogeun eodie innayo?)", a: ["Where is the train station?", "Where is the airport?", "Where is the bus stop?", "Where is the hotel?"], c: 0 },
+          { q: "방을 예약하고 싶어요 (Bangeul yeyakago sipeoyo)", a: ["I would like to book a room", "I would like to order food", "I would like to buy a ticket", "I would like to rent a car"], c: 0 },
+          { q: "박물관은 몇 시에 열어요? (Bangmulgwaneun myeot sie yeoreoyo?)", a: ["What time does the museum open?", "Where is the museum?", "How much is the museum?", "Is the museum open today?"], c: 0 },
+          { q: "예약이 있어요 (Yeyagi isseoyo)", a: ["I have a reservation", "I have a question", "I have a problem", "I have a ticket"], c: 0 },
+          { q: "맛집 추천해 주실 수 있나요? (Matjip chucheonhae jusil su innayo?)", a: ["Can you recommend a restaurant?", "Can you call a taxi?", "Can you speak slower?", "Can you write it down?"], c: 0 },
+          { q: "의사가 필요해요 (Uisaga piryohaeyo)", a: ["I need a doctor", "I need a hotel", "I need a taxi", "I need a phone"], c: 0 },
+          { q: "여권을 잃어버렸어요 (Yeogwoneul ireobeoryeosseoyo)", a: ["I lost my passport", "I lost my wallet", "I lost my ticket", "I lost my phone"], c: 0 },
+          { q: "어디에서 환전할 수 있나요? (Eodieseo hwanjeonhal su innayo?)", a: ["Where can I exchange money?", "Where can I buy tickets?", "Where can I find a taxi?", "Where can I eat?"], c: 0 },
+          { q: "와이파이 비밀번호가 뭐예요? (Wai pai bimilbeonhoga mwoyeyo?)", a: ["What is the WiFi password?", "What is your name?", "What is the address?", "What is the phone number?"], c: 0 },
+          { q: "택시를 불러 주실 수 있나요? (Taksireul bulleo jusil su innayo?)", a: ["Can you call a taxi for me?", "Can you help me?", "Can you show me?", "Can you tell me?"], c: 0 }
+        ],
+        extreme: [
+          { q: "기후 변화는 즉각적인 조치가 필요한 심각한 문제입니다", a: ["Climate change is a serious problem that requires immediate action", "The weather is nice today", "I like the climate here", "The seasons are changing"], c: 0 },
+          { q: "인공 지능은 수많은 산업을 변화시키고 있습니다", a: ["Artificial intelligence is transforming numerous industries", "Computers are getting smarter", "Technology is advancing quickly", "Robots will take our jobs"], c: 0 },
+          { q: "문화적 다양성은 우리 사회를 풍요롭게 합니다", a: ["Cultural diversity enriches our society", "Different cultures are interesting", "We should respect all cultures", "The world has many traditions"], c: 0 },
+          { q: "환경 지속 가능성은 미래 세대에게 중요합니다", a: ["Environmental sustainability is crucial for future generations", "We should recycle more", "The planet needs our help", "Future generations will face challenges"], c: 0 },
+          { q: "세계화는 경제적 상호 의존성을 증가시켰습니다", a: ["Globalization has increased economic interdependence", "The world is more connected now", "International trade is important", "Countries depend on each other"], c: 0 },
+          { q: "교육은 개인과 직업적 발전에 필수적입니다", a: ["Education is fundamental for personal and professional development", "Learning is important", "Schools teach valuable skills", "Knowledge helps careers"], c: 0 },
+          { q: "기술 혁신은 경제적 진보를 주도합니다", a: ["Technological innovation drives economic progress", "New technology creates jobs", "Computers help businesses", "Inventions improve lives"], c: 0 },
+          { q: "성 평등은 공정한 사회에 필수적입니다", a: ["Gender equality is essential for a fair society", "Men and women should be equal", "Discrimination is wrong", "Everyone deserves equal rights"], c: 0 },
+          { q: "팬데믹은 원격 근무의 채택을 가속화했습니다", a: ["The pandemic has accelerated the adoption of remote work", "More people work from home now", "COVID changed workplaces", "Offices are less crowded"], c: 0 },
+          { q: "비즈니스 윤리는 고객과의 신뢰를 구축합니다", a: ["Ethics in business builds trust with customers", "Honest companies succeed", "Customers appreciate integrity", "Good business practices matter"], c: 0 }
+        ]
+      },
+    };
+
+    // App state
+    let currentLang = '';
+    let currentDifficulty = '';
+    let currentQuestion = 0;
+    let score = 0;
+    let answers = [];
+    let shuffledQuestions = [];
+    let shuffledOptions = [];
+
+    // Initialize the app
+    function init() {
+      showWelcome();
+    }
+
+    // Show welcome screen with language selection
+    function showWelcome() {
+      const screen = document.getElementById('screen');
+      screen.innerHTML = `
+        <h2>Select a language to begin:</h2>
+        <div class="grid language-grid">
+          ${Object.keys(questionsByLanguage).map(lang => `
+            <button class="btn-primary" onclick="selectLanguage('${lang}')">${lang}</button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Show difficulty selection after language is chosen
+    function selectLanguage(lang) {
+      currentLang = lang;
+      const screen = document.getElementById('screen');
+      screen.innerHTML = `
+        <h2>${lang}</h2>
+        <h3>Select difficulty level:</h3>
+        <div class="grid difficulty-grid">
+          <button class="btn-beginner" onclick="startQuiz('beginner')">Beginner</button>
+          <button class="btn-intermediate" onclick="startQuiz('intermediate')">Intermediate</button>
+          <button class="btn-advanced" onclick="startQuiz('advanced')">Advanced</button>
+          <button class="btn-extreme" onclick="startQuiz('extreme')">Extreme</button>
+        </div>
+        <button class="btn-secondary" onclick="showWelcome()">Back</button>
+      `;
+    }
+
+    // Start the quiz with selected language and difficulty
+    function startQuiz(difficulty) {
+      currentDifficulty = difficulty;
+      currentQuestion = 0;
+      score = 0;
+      answers = [];
+      
+      // Shuffle questions for this session
+      shuffledQuestions = [...questionsByLanguage[currentLang][currentDifficulty]];
+      shuffleArray(shuffledQuestions);
+      
+      loadQuestion();
+    }
+
+    // Load the current question
+    function loadQuestion() {
+      const qData = shuffledQuestions[currentQuestion];
+      const progressPercent = ((currentQuestion) / shuffledQuestions.length) * 100;
+      
+      // Shuffle options for this question
+      shuffledOptions = [...qData.a];
+      shuffleArray(shuffledOptions);
+      
+      const screen = document.getElementById('screen');
+      screen.innerHTML = `
+        <h2>${currentLang} - ${capitalizeFirstLetter(currentDifficulty)}</h2>
+        <div class="progress-text">Question ${currentQuestion + 1} of ${shuffledQuestions.length}</div>
+        <div class="progress-container">
+          <div class="progress-bar" style="width: ${progressPercent}%"></div>
+        </div>
+        <h3>What does "${qData.q}" mean?</h3>
+      `;
+
+      // Add shuffled options
+      shuffledOptions.forEach((option, i) => {
+        const originalIndex = qData.a.indexOf(option);
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.textContent = option;
+        btn.onclick = () => selectAnswer(btn, originalIndex === qData.c);
+        screen.appendChild(btn);
+      });
+
+      // Add next button (hidden until answer is selected)
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn-primary';
+      nextBtn.id = 'nextBtn';
+      nextBtn.textContent = currentQuestion === shuffledQuestions.length - 1 ? "See Results" : "Next Question";
+      nextBtn.onclick = nextQuestion;
+      screen.appendChild(nextBtn);
+    }
+
+    // Handle answer selection
+    function selectAnswer(element, isCorrect) {
+      const options = document.querySelectorAll('.option');
+      
+      // Disable further clicks on options
+      options.forEach(opt => opt.onclick = null);
+      
+      // Highlight correct and incorrect answers
+      if (isCorrect) {
+        element.classList.add('correct');
+        score++;
+        answers.push({ 
+          correct: true, 
+          question: shuffledQuestions[currentQuestion].q, 
+          answer: element.textContent 
+        });
+      } else {
+        element.classList.add('incorrect');
+        // Find and highlight the correct answer
+        const correctOption = shuffledOptions[shuffledQuestions[currentQuestion].c];
+        options.forEach(opt => {
+          if (opt.textContent === correctOption) {
+            opt.classList.add('correct');
+          }
+        });
+        answers.push({ 
+          correct: false, 
+          question: shuffledQuestions[currentQuestion].q, 
+          answer: element.textContent,
+          correctAnswer: correctOption
+        });
+      }
+      
+      // Show next button
+      document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    // Move to next question or show results
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion >= shuffledQuestions.length) {
+        showResults();
+      } else {
+        loadQuestion();
+      }
+    }
+
+    // Show final results
+    function showResults() {
+      const percentage = Math.round((score / shuffledQuestions.length) * 100);
+      const screen = document.getElementById('screen');
+      
+      let resultsHTML = `
+        <h2>Quiz Complete!</h2>
+        <div class="score-display">Your score: ${score}/${shuffledQuestions.length} (${percentage}%)</div>
+        <div class="progress-container">
+          <div class="progress-bar" style="width: ${percentage}%"></div>
+        </div>
+        <div class="results-summary">
+          <h3>Your Answers:</h3>
+      `;
+      
+      // Add each answer with correct/incorrect indicator
+      answers.forEach((answer, index) => {
+        resultsHTML += `
+          <div class="result-item ${answer.correct ? 'result-correct' : 'result-incorrect'}">
+            <div class="result-question">${index + 1}. ${answer.question}</div>
+            <div class="result-answer">
+              ${answer.correct ? '✓' : '✗'} 
+              ${answer.answer}
+            </div>
+            ${!answer.correct ? `
+              <div class="result-correct-answer">Correct: ${answer.correctAnswer}</div>
+            ` : ''}
+          </div>
+        `;
+      });
+      
+      // Add action buttons
+      resultsHTML += `
+        </div>
+        <button class="btn-primary" onclick="startQuiz('${currentDifficulty}')">Try Again</button>
+        <button class="btn-secondary" onclick="selectLanguage('${currentLang}')">Change Difficulty</button>
+        <button class="btn-secondary" onclick="showWelcome()">Choose Another Language</button>
+      `;
+      
+      screen.innerHTML = resultsHTML;
+    }
+
+    // Helper function to shuffle arrays
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Helper function to capitalize first letter
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    // Initialize the app when page loads
+    window.onload = init;
+  </script>
+</body>
+</html>
